@@ -1,2 +1,2 @@
-# Entity378-s-Lyre-Player
+# Entity378-Lyre-Player
 My personal lyre tool for GI
