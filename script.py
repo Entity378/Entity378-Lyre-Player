@@ -195,7 +195,7 @@ def chart_cretor(file_path_MP4, global_hex_color, global_color_threshold):
     return
 
 #Interface
-class bonus_time(customtkinter.CTk):
+class Interface(customtkinter.CTk):
     #Buttons
     def start_action(self):
         global file_path_Json
@@ -497,5 +497,5 @@ class bonus_time(customtkinter.CTk):
 
 if __name__ == "__main__":
     multiprocessing.freeze_support()
-    bonus_time = bonus_time()
-    bonus_time.mainloop()
+    Interface = Interface()
+    Interface.mainloop()
