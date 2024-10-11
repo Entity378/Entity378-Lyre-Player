@@ -68,7 +68,6 @@ def chart_register(pause_flag, stop_flag):
     keyboard.on_press(on_key_event)
     while True:
         pass
-    
 
 #Chart Player
 def chart_player(file_path_Json, pause_flag, stop_flag):
@@ -129,7 +128,7 @@ def chart_cretor(file_path_MP4, global_hex_color, global_color_threshold):
         (1294, 907): ('n'),
         (1462, 907): ('m')
     }
-    
+
     def hex_to_bgr(hex_color):
         return tuple(int(hex_color[i:i+2], 16) for i in (4, 2, 0))
 
@@ -358,7 +357,7 @@ class bonus_time(customtkinter.CTk):
         self.keybinds_set_stop_button.configure(text=f"Stop Key: {key_stop.upper()}")
         self.unbind("<Key>")
         self.bind_keys()
-    
+
     #Update Keybinds
     def update_keybinds_state(self):
         global keybinds
@@ -399,11 +398,11 @@ class bonus_time(customtkinter.CTk):
 
     def __init__(self):
         super().__init__()
+
         #Configure Window
         self.title("Entity378's Lyre Player 1.0")
         file_path = os.path.abspath(sys.argv[0])
         self.iconbitmap(False, file_path)
-
 
         #Configure Grid Layout (1x1)
         self.grid_columnconfigure(0, weight=1)
@@ -444,7 +443,7 @@ class bonus_time(customtkinter.CTk):
         #Record
         self.json_label = customtkinter.CTkLabel(self.tabview.tab("Play"), text="No files selected")
         self.json_label.grid(row=0, column=0, padx=20, pady=(20, 10))
-        
+
         self.json_button = customtkinter.CTkButton(self.tabview.tab("Play"), text="Select Json file", command=self.choose_json_file)
         self.json_button.grid(row=1, column=0, padx=20, pady=(20, 10))
 
@@ -467,7 +466,7 @@ class bonus_time(customtkinter.CTk):
         self.threshold_slider = customtkinter.CTkSlider(self.tabview.tab("Generate Music Sheet"), from_=0, to=255, number_of_steps=255, command=self.update_slider_value)
         self.threshold_slider.grid(row=3, column=0, padx=20, pady=(0, 10), sticky="ew")
         self.threshold_slider.set(global_color_threshold)
-        
+
         self.threshold_label = customtkinter.CTkLabel(self.tabview.tab("Generate Music Sheet"), text=f"Threshold: {global_color_threshold}")
         self.threshold_label.grid(row=2, column=0, padx=20, pady=(20, 10))
 
@@ -497,5 +496,6 @@ class bonus_time(customtkinter.CTk):
         self.keybinds_set_stop_button.configure(state=customtkinter.DISABLED)
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     bonus_time = bonus_time()
     bonus_time.mainloop()
