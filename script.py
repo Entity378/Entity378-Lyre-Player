@@ -104,7 +104,7 @@ def chart_player(file_path_Json, pause_flag, stop_flag):
         replay_keystrokes(keystrokes, pause_flag, stop_flag)
     except Exception as e:
         print(f"Error: An unexpected error occurred: {e}")
-
+    return
 #Chart Creator
 def chart_cretor(file_path_MP4, global_hex_color, global_color_threshold):
     hex_color = global_hex_color
