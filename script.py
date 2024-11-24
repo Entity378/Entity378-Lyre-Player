@@ -9,7 +9,7 @@ import time
 from tkinter import filedialog
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
-customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "blue", "dark-blue"
 
 file_path_Json = "PLACEHOLDER"
 file_path_MP4 = "PLACEHOLDER"
@@ -28,10 +28,6 @@ stop_flag = multiprocessing.Value('b', False)
 
 #Chart Register
 def chart_register(pause_flag, stop_flag):
-    keystrokes = []
-    start_time = time.time()
-    total_pause_time = 0.00
-    pause_start_time = 0.00
 
     def save_keystrokes(keystrokes, filename):
         with open(filename, 'w') as file:
@@ -39,7 +35,11 @@ def chart_register(pause_flag, stop_flag):
         print("Json file saved successfully")
 
     def on_key_event(event):
-        nonlocal keystrokes, start_time, total_pause_time, pause_start_time
+        keystrokes = []
+        start_time = time.time()
+        total_pause_time = 0.00
+        pause_start_time = 0.00
+
         if stop_flag.value:
             with stop_flag.get_lock():
                 stop_flag.value = False
@@ -50,14 +50,12 @@ def chart_register(pause_flag, stop_flag):
             return
 
         with pause_flag.get_lock():
+            current_time = time.time()
             if pause_flag.value:
-                if pause_start_time == 0.00:
-                    pause_start_time = time.time()
-                else:
-                    total_pause_time = time.time() - pause_start_time
+                total_pause_time = current_time - pause_start_time
             else:
                 pause_start_time = 0.00
-                elapsed_time = (time.time() - start_time) - total_pause_time
+                elapsed_time = (current_time - start_time) - total_pause_time
                 keystroke = {
                     'key': event.name,
                     'time': elapsed_time
@@ -78,27 +76,34 @@ def chart_player(file_path_Json, pause_flag, stop_flag):
         return keystrokes
 
     def replay_keystrokes(keystrokes, pause_flag, stop_flag):
-        start_time = time.time()
+        prev_keystroke_time = 0.00
         for keystroke in keystrokes:
+            time_to_wait = keystroke['time'] - prev_keystroke_time
+            prev_keystroke_time = keystroke['time']
+
+            if time_to_wait > 0:
+                time.sleep(time_to_wait)
+
             if stop_flag.value:
                 with stop_flag.get_lock():
                     stop_flag.value = False
                 return
+        
             while pause_flag.value:
+                if stop_flag.value:
+                    with stop_flag.get_lock():
+                        stop_flag.value = False
+                    return
                 time.sleep(0.1)
-            current_time = time.time()
-            time_to_wait = keystroke['time'] - (current_time - start_time)
 
-            if time_to_wait > 0:
-                time.sleep(time_to_wait)
             keyboard.press(keystroke['key'])
             keyboard.release(keystroke['key'])
+
     try:
         keystrokes = load_keystrokes(file_path_Json)
         replay_keystrokes(keystrokes, pause_flag, stop_flag)
-    except:
-        print(f"Error: Cannot open Json file")
-    return
+    except Exception as e:
+        print(f"Error: An unexpected error occurred: {e}")
 
 #Chart Creator
 def chart_cretor(file_path_MP4, global_hex_color, global_color_threshold):
@@ -132,13 +137,13 @@ def chart_cretor(file_path_MP4, global_hex_color, global_color_threshold):
     def hex_to_bgr(hex_color):
         return tuple(int(hex_color[i:i+2], 16) for i in (4, 2, 0))
 
-    def red_distance(r1, r2):
-        res = r2
-        if r2 < 200:
-            if r1 > r2:
-                res = r1 - r2
+    def blue_distance(b1, b2):
+        res = b2
+        if b2 < 200:
+            if b1 > b2:
+                res = b1 - b2
             else:
-                res = r2 - r1
+                res = b2 - b1
         return res
 
     def analyze_frame(frame, pixelKeys, threshold, current_time, hex_color):
@@ -146,9 +151,9 @@ def chart_cretor(file_path_MP4, global_hex_color, global_color_threshold):
         for (x, y), (key) in pixelKeys.items():
             target_color = hex_to_bgr(hex_color)
             pixel_color = frame[y, x]
-            target_red = target_color[2]
-            pixel_red = pixel_color[2]
-            if red_distance(target_red, pixel_red) <= threshold:
+            target_blue = target_color[2]
+            pixel_blue = pixel_color[2]
+            if blue_distance(target_blue, pixel_blue) <= threshold:
                 changes.append(key)
                 print(f"Pixels of key: {key}, Time: {current_time}")
         return changes
@@ -400,7 +405,7 @@ class Interface(customtkinter.CTk):
         super().__init__()
 
         #Configure Window
-        self.title("Entity378's Lyre Player 1.0")
+        self.title("Entity378's Lyre Player 1.0.1")
         file_path = os.path.abspath(sys.argv[0])
         self.iconbitmap(False, file_path)
 
@@ -413,11 +418,11 @@ class Interface(customtkinter.CTk):
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Entity378's Lyre Player 1.0", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Entity378's Lyre Player 1.0.1", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"], command=self.change_appearance_mode_event)
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["System", "Dark", "Light"], command=self.change_appearance_mode_event)
         self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
 
         #Create Tabview
