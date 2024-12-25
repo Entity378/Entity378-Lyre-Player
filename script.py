@@ -98,13 +98,16 @@ def chart_player(file_path_Json, pause_flag, stop_flag):
 
             keyboard.press(keystroke['key'])
             keyboard.release(keystroke['key'])
+        return
 
     try:
         keystrokes = load_keystrokes(file_path_Json)
         replay_keystrokes(keystrokes, pause_flag, stop_flag)
+        return
     except Exception as e:
         print(f"Error: An unexpected error occurred: {e}")
     return
+
 #Chart Creator
 def chart_cretor(file_path_MP4, global_hex_color, global_color_threshold):
     hex_color = global_hex_color
@@ -137,13 +140,13 @@ def chart_cretor(file_path_MP4, global_hex_color, global_color_threshold):
     def hex_to_bgr(hex_color):
         return tuple(int(hex_color[i:i+2], 16) for i in (4, 2, 0))
 
-    def blue_distance(b1, b2):
-        res = b2
-        if b2 < 200:
-            if b1 > b2:
-                res = b1 - b2
+    def blue_distance(r1, r2):
+        res = r2
+        if r2 < 200:
+            if r1 > r2:
+                res = r1 - r2
             else:
-                res = b2 - b1
+                res = r2 - r1
         return res
 
     def analyze_frame(frame, pixelKeys, threshold, current_time, hex_color):
@@ -151,9 +154,9 @@ def chart_cretor(file_path_MP4, global_hex_color, global_color_threshold):
         for (x, y), (key) in pixelKeys.items():
             target_color = hex_to_bgr(hex_color)
             pixel_color = frame[y, x]
-            target_blue = target_color[2]
-            pixel_blue = pixel_color[2]
-            if blue_distance(target_blue, pixel_blue) <= threshold:
+            target_red = target_color[2]
+            pixel_red = pixel_color[2]
+            if blue_distance(target_red, pixel_red) <= threshold:
                 changes.append(key)
                 print(f"Pixels of key: {key}, Time: {current_time}")
         return changes
@@ -405,7 +408,7 @@ class Interface(customtkinter.CTk):
         super().__init__()
 
         #Configure Window
-        self.title("Entity378's Lyre Player 1.0.1")
+        self.title("Entity378's Lyre Player 1.0.2")
         file_path = os.path.abspath(sys.argv[0])
         self.iconbitmap(False, file_path)
 
@@ -418,7 +421,7 @@ class Interface(customtkinter.CTk):
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Entity378's Lyre Player 1.0.1", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Entity378's Lyre Player 1.0.2", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
